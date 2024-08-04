@@ -1,4 +1,4 @@
-package com.pms.service;
+package com.pms.repository;
 
 import java.util.List;
 
@@ -14,14 +14,14 @@ import com.pms.model.User;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 	// Project created By Owner
-	List<Project> findByOwner(User user);
+//	List<Project> findByOwner(User user);
 	
 	// Method use to search project By name
-	List<Project> findByNameContainingAndTeamContaining(String partialName, User user);
+	List<Project> findByNameContainingAndTeamContains(String partialName, User user);
 	
 	// Method to Find project by Team
-	@Query("SELECT p from Project p join p.team t where t=:user")
-	List<Project> findProjectByTeam(@Param("user") User user);
+//	@Query("SELECT p from Project p join p.team t where t=:user")
+//	List<Project> findProjectByTeam(@Param("user") User user);
 
 	
 	List<Project> findByTeamContainingOrOwner(User user, User owner);
