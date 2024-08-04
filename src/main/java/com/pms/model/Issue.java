@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,6 +34,7 @@ public class Issue {
 	private String priority;	// priority of Issue - priority or not
 	private LocalDate dueDate;	// dueDate of Issue
 	
+	@ElementCollection
 	private List<String> tags = new ArrayList<>();
 	
 	@ManyToOne
