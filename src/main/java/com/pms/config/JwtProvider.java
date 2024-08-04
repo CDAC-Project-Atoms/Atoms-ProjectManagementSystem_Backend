@@ -22,7 +22,7 @@ public class JwtProvider {
 //		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
 		
 		String jwt = Jwts.builder().setIssuedAt(new Date())
-						.setExpiration(new Date(new Date().getTime()+86400000))
+						.setExpiration(new Date(new Date().getTime()+86400000)) // 24 hours expiration time
 						.claim("email", auth.getName())
 						.signWith(key)
 						.compact();
