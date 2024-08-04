@@ -22,6 +22,7 @@ public class Invitation {
 	private String token;
 	private String email;
 	private Long projectId;
+	
 	public Long getId() {
 		return id;
 	}
