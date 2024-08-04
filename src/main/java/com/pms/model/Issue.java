@@ -42,7 +42,8 @@ public class Issue {
 	@ManyToOne
 	private Project project;   // Many issues of single project
 	
-	@JsonIgnore
+	
+	@JsonIgnore				// whenever we fetch issue from frontend then don't fetch JsonIgnore field
 	@OneToMany(mappedBy = "issue", cascade = CascadeType.ALL,orphanRemoval = true)
 	private List<Comment> comments = new ArrayList<>();
 	

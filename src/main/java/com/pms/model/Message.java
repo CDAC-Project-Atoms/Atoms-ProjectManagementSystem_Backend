@@ -12,11 +12,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @Entity
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-public class Comment {
+@AllArgsConstructor
+public class Message {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,12 +24,14 @@ public class Comment {
 	
 	private String content;
 	
-	private LocalDateTime createdDateTime;
+	private LocalDateTime createdAt;
 	
 	@ManyToOne
-	private User user;
+	private Chat chat;
 	
 	@ManyToOne
-	private Issue issue;
+	private User sender;
+	
+	
 	
 }
