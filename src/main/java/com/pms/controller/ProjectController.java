@@ -20,7 +20,7 @@ import com.pms.model.Chat;
 import com.pms.model.Invitation;
 import com.pms.model.Project;
 import com.pms.model.User;
-import com.pms.repository.InviteRequest;
+import com.pms.request.InviteRequest;
 import com.pms.response.MessageResponse;
 import com.pms.service.InvitationService;
 import com.pms.service.ProjectService;
@@ -115,7 +115,6 @@ public class ProjectController {
 		return new ResponseEntity<>(projects, HttpStatus.OK);
 	}
 	
-	
 	@GetMapping("/{projectid}/chat")
 	public ResponseEntity<Chat> getChatByProjectId(
 			@PathVariable Long projectId,
@@ -131,8 +130,7 @@ public class ProjectController {
 	@PostMapping("/invite")
 	public ResponseEntity<MessageResponse> inviteProject(
 			@RequestBody InviteRequest  req,
-			@RequestHeader("Authorization") String jwt,
-			@RequestBody Project project
+			@RequestHeader("Authorization") String jwt
 			) throws Exception {
 		
 		User user = userService.findUserProfileByJwt(jwt);		
@@ -144,8 +142,7 @@ public class ProjectController {
 	@GetMapping("/accept_invitation")
 	public ResponseEntity<Invitation> acceptInviteProject(
 			@RequestParam String  token,
-			@RequestHeader("Authorization") String jwt,
-			@RequestBody Project project
+			@RequestHeader("Authorization") String jwt
 			) throws Exception {
 		
 		User user = userService.findUserProfileByJwt(jwt);		

@@ -1,4 +1,4 @@
-package com.pms.repository;
+package com.pms.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
