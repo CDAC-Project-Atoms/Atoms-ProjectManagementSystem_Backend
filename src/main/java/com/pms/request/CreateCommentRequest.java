@@ -3,10 +3,11 @@ package com.pms.request;
 import lombok.Data;
 
 @Data
-public class CreateMessageRequest {
+public class CreateCommentRequest {
 	
-	private Long senderid;
+	private Long issueId;
+	
 	private String content;
-	private Long projectId;
+	
 
 }
