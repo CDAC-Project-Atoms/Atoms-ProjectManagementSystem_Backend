@@ -20,6 +20,7 @@ import com.pms.repository.UserRepository;
 import com.pms.request.LoginRequest;
 import com.pms.response.AuthResponse;
 import com.pms.service.CustomUserDetailsImpl;
+import com.pms.service.SubscriptionService;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,6 +34,9 @@ public class AuthController {
 	
 	@Autowired
 	private CustomUserDetailsImpl customUserDetailsImpl;
+	
+	@Autowired
+	private SubscriptionService subscriptionService;
 	
 	// Create new user or Signup method
 	@PostMapping("/signup")
@@ -52,6 +56,9 @@ public class AuthController {
 		createdUSer.setFullName(user.getFullName());
 		
 		User savedUser = userRepository.save(createdUSer);
+		
+		// Create the free subscription plan for the new user
+		subscriptionService.createSubscription(savedUser);
 		
 		// Authenticate the new user
 		Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
