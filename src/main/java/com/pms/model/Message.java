@@ -2,74 +2,39 @@ package com.pms.model;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "messages")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Message {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	private String content;
-	
-	private LocalDateTime createdAt;
-	
-	@ManyToOne
-	private Chat chat;
-	
-	@ManyToOne
-	private User sender;
+    private String content;
 
-	public Long getId() {
-		return id;
-	}
+    private LocalDateTime createdAt;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @ManyToOne
+    @JoinColumn(name = "chat_id")
+    private Chat chat;
 
-	public String getContent() {
-		return content;
-	}
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public Chat getChat() {
-		return chat;
-	}
-
-	public void setChat(Chat chat) {
-		this.chat = chat;
-	}
-
-	public User getSender() {
-		return sender;
-	}
-
-	public void setSender(User sender) {
-		this.sender = sender;
-	}
-	
+    
 }
+

@@ -3,27 +3,23 @@ package com.pms.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.pms.model.Project;
 import com.pms.model.User;
 
-@Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
+	 List<Project> findByOwner(User owner);
 
-	// Project created By Owner
-//	List<Project> findByOwner(User user);
-	
-	// Method use to search project By name
+
+
 	List<Project> findByNameContainingAndTeamContains(String partialName, User user);
-	
-	// Method to Find project by Team
-//	@Query("SELECT p from Project p join p.team t where t=:user")
-//	List<Project> findProjectByTeam(@Param("user") User user);
+	List<Project> findByNameContainingAndTeamContaining(String partialName, User user);
 
-	
-	List<Project> findByTeamContainingOrOwner(User user, User owner);
-	
-	
+	@Query("SELECT p FROM Project p JOIN p.team t WHERE t = :user")
+	List<Project> findProjectsByTeam(@Param("user") User user);
+
+	List<Project> findByTeamContainingOrOwner(User user,User owner);
+
 }

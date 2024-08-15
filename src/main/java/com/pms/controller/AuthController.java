@@ -1,5 +1,9 @@
 package com.pms.controller;
 
+
+import com.pms.model.Subscription;
+import com.pms.repository.SubscriptionRepository;
+import com.pms.service.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pms.config.JwtProvider;
+import com.pms.exception.UserException;
 import com.pms.model.User;
 import com.pms.repository.UserRepository;
 import com.pms.request.LoginRequest;
 import com.pms.response.AuthResponse;
-import com.pms.service.CustomUserDetailsImpl;
-import com.pms.service.SubscriptionService;
+import com.pms.service.CustomeUserServiceImplementation;
+import com.pms.service.UserService;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -28,95 +34,99 @@ public class AuthController {
 
 	@Autowired
 	private UserRepository userRepository;
-	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private CustomeUserServiceImplementation customUserDetails;
 	
 	@Autowired
-	private CustomUserDetailsImpl customUserDetailsImpl;
-	
+    private UserService userService;
+
 	@Autowired
 	private SubscriptionService subscriptionService;
+
+	@Autowired
+	private SubscriptionRepository subscriptionRepository;
+
 	
-	// Create new user or Signup method
+
 	@PostMapping("/signup")
-	public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws Exception {
-		
-		User isUserExists = userRepository.findByEmail(user.getEmail());
-		
-		// Check if user already exists or not with same email
-		if(isUserExists!=null) {
-			throw new Exception("email already exist with another account");
+	public ResponseEntity<AuthResponse> createUserHandler(
+			@RequestBody User user) throws UserException {
+
+		String email = user.getEmail();
+		String password = user.getPassword();
+		String fullName = user.getFullName();
+		String role=user.getRole();
+
+		User isEmailExist = userRepository.findByEmail(email);
+
+		if (isEmailExist!=null) {
+
+			throw new UserException("Email Is Already Used With Another Account");
 		}
-		
-		// If user not exits then save the new user with email
-		User createdUSer = new User();
-		createdUSer.setPassword(passwordEncoder.encode(user.getPassword()));
-		createdUSer.setEmail(user.getEmail());
-		createdUSer.setFullName(user.getFullName());
-		
-		User savedUser = userRepository.save(createdUSer);
-		
-		// Create the free subscription plan for the new user
-		subscriptionService.createSubscription(savedUser);
-		
-		// Authenticate the new user
-		Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+
+		// Create new user
+		User createdUser = new User();
+		createdUser.setEmail(email);
+		createdUser.setFullName(fullName);
+		createdUser.setPassword(passwordEncoder.encode(password));
+		createdUser.setRole(role);
+
+		User savedUser = userRepository.save(createdUser);
+
+		Subscription subscription = subscriptionService.createSubscription(savedUser);
+
+//		subscriptionRepository.save(subscription);
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		
-		// Generate JWT token
-		String jwt = JwtProvider.generateToken(authentication);	
-		
-		// Send the response with jwt token and success msg
-		AuthResponse res = new AuthResponse();
-		res.setMessage("signup success");
-		res.setJwt(jwt);
-		
-		return new ResponseEntity<>(res, HttpStatus.CREATED);
-	}
-	
-	@PostMapping("/signin")
-	public ResponseEntity<AuthResponse> signin(@RequestBody LoginRequest loginRequest) {
-		
-		String username=loginRequest.getEmail();
-		String password = loginRequest.getPassword();
-		
-		// Authenticate the user
-		Authentication authentication = authenticate(username, password);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-	
-		// Generate JWT token
-		String jwt = JwtProvider.generateToken(authentication);	
-				
-		// Send the response with jwt token and success msg
-		AuthResponse res = new AuthResponse();
-		res.setMessage("signin success");
-		res.setJwt(jwt);
-				
-		return new ResponseEntity<>(res, HttpStatus.CREATED);
-		
+
+		String token = JwtProvider.generateToken(authentication);
+
+		AuthResponse authResponse = new AuthResponse();
+		authResponse.setJwt(token);
+		authResponse.setMessage("Register Success");
+
+		return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.OK);
+
 	}
 
-	// Method to valid username and password
-	private Authentication authenticate(String username, String password) {
-		
-		UserDetails userDetails = customUserDetailsImpl.loadUserByUsername(username);
-		
-		// User Details not found / User does not exists
-		if(userDetails==null) {
-			throw new BadCredentialsException("invalid username");
-		}
-		
-		// If user found then check the password
-		if(!passwordEncoder.matches(password, userDetails.getPassword())) {
-			throw new BadCredentialsException("invalid passsword");
-		}
-		
-		// If password is correct	
-		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-		
+	@PostMapping("/signin")
+	public ResponseEntity<AuthResponse> signin(@RequestBody LoginRequest loginRequest) {
+
+		String username = loginRequest.getEmail();
+		String password = loginRequest.getPassword();
+
+		System.out.println(username + " ----- " + password);
+
+		Authentication authentication = authenticate(username, password);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		String token = JwtProvider.generateToken(authentication);
+		AuthResponse authResponse = new AuthResponse();
+
+		authResponse.setMessage("Login Success");
+		authResponse.setJwt(token);
+
+		return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.OK);
 	}
-	
-	
+
+	private Authentication authenticate(String username, String password) {
+		UserDetails userDetails = customUserDetails.loadUserByUsername(username);
+
+		System.out.println("sign in userDetails - " + userDetails);
+
+		if (userDetails == null) {
+			System.out.println("sign in userDetails - null " + userDetails);
+			throw new BadCredentialsException("Invalid username or password");
+		}
+		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+			System.out.println("sign in userDetails - password not match " + userDetails);
+			throw new BadCredentialsException("Invalid username or password");
+		}
+		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+	}
+
 	
 }

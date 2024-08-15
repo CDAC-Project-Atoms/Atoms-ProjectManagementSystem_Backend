@@ -3,82 +3,42 @@ package com.pms.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "chats")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Chat {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	private String name;
-	
-	@OneToOne
-	private Project project; // Each chat has one project
-	
-	@JsonIgnore
-	@OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Message> messages = new ArrayList<>();
-	
-	@ManyToMany
-	private List<User> users = new ArrayList<>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	public Long getId() {
-		return id;
-	}
+    private String name;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @OneToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
-	public String getName() {
-		return name;
-	}
+    @JsonIgnore
+    @OneToMany(mappedBy ="chat" ,cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Message> messages;
+    
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    // Users participating in the chat
+    @ManyToMany
+    @JoinTable(
+            name = "chat_users",
+            joinColumns = @JoinColumn(name = "chat_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> users=new ArrayList<User>();
 
-	public Project getProject() {
-		return project;
-	}
-
-	public void setProject(Project project) {
-		this.project = project;
-	}
-
-	public List<Message> getMessages() {
-		return messages;
-	}
-
-	public void setMessages(List<Message> messages) {
-		this.messages = messages;
-	}
-
-	public List<User> getUsers() {
-		return users;
-	}
-
-	public void setUsers(List<User> users) {
-		this.users = users;
-	}
-	
-		
 }
+
